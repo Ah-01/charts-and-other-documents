@@ -1,0 +1,160 @@
+  <!DOCTYPE html>
+<html>
+<head>
+<style>
+.chart rect {
+    fill: steelblue;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .axis text {
+    font-size: 12px;
+  }
+
+  .chart .current {
+    fill: green;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="chart-container">
+    <svg class="chart">
+    </svg>
+  </div>
+  <script src="http://d3js.org/d3.v3.min.js"></script> 
+<script>
+  var employees = [
+  {dept: 'A', age : 22},
+  {dept: 'B', age : 26},
+  {dept: 'C', age : 35},
+  {dept: 'D', age : 30},
+  {dept: 'E', age : 27}
+];
+
+var svgHeight = 400; //set svg height
+var svgWidth = 400;  //set svg width
+var maxAge = 65; // You can also compute this from the data
+var barSpacing = 1; // The amount of space you want to keep between the bars
+var padding = {
+    left: 30, right: 0,
+    top: 20, bottom: 20
+};
+
+function animateBarsUp() {
+  var maxWidth = svgWidth - padding.left - padding.right; //set max width for chart
+  var maxHeight = svgHeight - padding.top - padding.bottom; //set mmax height for chart
+  //console.log(maxHeight,maxWidth);
+
+  // Define your conversion functions
+  var convert = {    
+    x: d3.scale.ordinal(),  // define x-axis points
+    y: d3.scale.linear()    //define y-axis points
+  };
+
+  // Define your axis
+  var axis = {
+    x: d3.svg.axis().orient('bottom'), // define position of x-axs
+    y: d3.svg.axis().orient('left')    // define position of y-axis
+  };
+    
+  // Define the conversion function for the axis points
+  axis.x.scale(convert.x); //allocate x-axis scale
+  axis.y.scale(convert.y); //llocate y-axis scale
+
+  // Define the output range of your conversion functions
+  convert.y.range([maxHeight, 0]); //set ranges to y-axis
+  convert.x.rangeRoundBands([0, maxWidth]);
+    
+  // Once you get your data, compute the domains
+  convert.x.domain(employees.map(function (d) {
+    console.log(d.dept);
+      return d.dept;
+    })
+  );
+  convert.y.domain([0, maxAge]);
+
+  // Setup the markup for your SVG
+  var svg = d3.select('.chart') //create svg element and set height and width
+    .attr({
+        width: svgWidth,
+        height: svgHeight
+    });
+  
+  // The group node that will contain all the other nodes
+  // that render your chart
+  var chart = svg.append('g') //append one container for ploting the graph
+    .attr({
+        transform: function (d, i) {
+
+          return 'translate(' + padding.left + ',' + padding.top + ')';
+          //console.log(d,i);
+        }
+      });
+    
+  chart.append('g') // Container for the axis
+    .attr({
+      class: 'x axis',
+      width:maxWidth
+     // transform: 'translate(0,' + maxHeight + ')'
+    })
+    .call(axis.x); // Insert an axis inside this node
+
+  chart.append('g') // Container for the axis
+    .attr({
+      class: 'y axis',
+      height: maxHeight
+    })
+    .call(axis.y); // Insert an y-axis inside this node
+//creating the bars
+  var bars = chart
+    .selectAll('g.bar-group')
+    .data(employees)
+    .enter()
+    .append('g') // Container for the each bar
+    .attr({
+      transform: function (d, i) {
+        console.log( convert.x(d.dept));
+        return 'translate(' + convert.x(d.dept) + ', 0)';
+
+      },
+      class: 'bar-group'
+    });
+
+  bars.append('rect')
+        .attr({
+        y: maxHeight,
+        height: 0,
+        width: function(d) {
+        console.log(convert.x(d.dept));
+          return convert.x.rangeBand(d) - 1;},
+        class: 'bar'
+    })
+    .transition()
+    .duration(1500)
+    .attr({
+      y: function (d, i) {
+        console.log(convert.y(d.age));
+        return convert.y(d.age);
+      },
+      height: function (d, i) {
+        return maxHeight - convert.y(d.age);
+      }
+    });
+
+  return chart;
+}
+
+animateBarsUp(); //loop repiteation
+ 
+  </script>
+ 
+</body>
+</html>
+

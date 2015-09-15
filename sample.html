@@ -1,0 +1,34 @@
+  <!DOCTYPE html>
+<html>
+<head>
+  <style>
+  body{ font-size: 12px; font-family: Arial; }
+  </style>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+<body> 
+<script>
+    function Person(){
+     //this is private variable
+     var dob="8 June 2012";
+     //public properties and functions
+     return{
+      age:"23",
+      name:"aravind",
+      getDob:function(){
+       return dob;
+      }
+     }
+    }
+    var pobj=new Person();
+    //this will get undefined 
+    //because it is private to Person
+    console.log(pobj.dob);
+    //Will get dob value we using public 
+    //funtion to get private data
+    console.log(pobj.getDob());
+  </script>
+ 
+</body>
+</html>
+
